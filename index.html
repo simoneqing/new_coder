@@ -3,274 +3,935 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>今天吃什么转盘</title>
+  <title>Baby Food Tracker - 辅食排敏小工具</title>
   <style>
     :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --accent: #ef4444;
-      --accent-dark: #dc2626;
-      --muted: #6b7280;
+      --bg: #ece8e3;
+      --panel: #f3f3f3;
+      --panel-2: #ededed;
+      --line: #e1e3e6;
+      --text: #2f353b;
+      --muted: #95a3b3;
+      --safe: #71ae94;
+      --allergy: #e49384;
+      --neutral: #dde1e4;
+      --pill-text: #4f5b67;
+      --accent: #f28f7d;
+      --btn-line: #a9b7c8;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: radial-gradient(circle at top, #fff5f5, var(--bg));
+      background: var(--bg);
       color: var(--text);
-      display: grid;
-      place-items: center;
-      padding: 24px;
+      font-size: 14px;
     }
 
-    .app {
-      width: min(980px, 100%);
-      background: var(--card);
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 24px;
-      padding: 24px;
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 12px 16px 24px;
     }
 
-    .wheel-wrap {
-      display: grid;
-      place-items: center;
-      position: relative;
-    }
-
-    .pointer {
-      position: absolute;
-      top: 6px;
-      width: 0;
-      height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 28px solid var(--accent);
-      z-index: 5;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
-    }
-
-    #wheel {
-      width: 360px;
-      height: 360px;
-      border-radius: 50%;
-      border: 10px solid #fff;
-      box-shadow: inset 0 0 0 2px #e5e7eb, 0 8px 24px rgba(0, 0, 0, .12);
-      transition: transform 4.6s cubic-bezier(.16,.8,.19,1);
-      background: #f3f4f6;
-    }
-
-    .controls h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
-
-    .controls p {
-      margin: 0 0 16px;
-      color: var(--muted);
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 180px;
-      resize: vertical;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      font: inherit;
-      line-height: 1.5;
-    }
-
-    .btns {
-      margin-top: 12px;
+    .topbar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
     }
 
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 16px;
-      font: inherit;
+    .brand h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .brand h1 span { color: var(--accent); }
+    .brand p { margin: 4px 0 0; font-size: 14px; color: #98a5b6; font-weight: 700; }
+
+    .top-actions { display: flex; gap: 10px; }
+
+    .ghost-btn {
+      border: 1px solid var(--btn-line);
+      color: #8ea0b7;
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform .12s ease, opacity .2s ease, background .2s ease;
     }
 
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .section {
+      background: var(--panel);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #ebeef1;
+    }
 
-    #renderBtn { background: #e5e7eb; }
-    #spinBtn {
-      background: var(--accent);
-      color: white;
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 4px 0 12px;
+      color: #9ba8b8;
+      font-size: 13px;
       font-weight: 700;
     }
-    #spinBtn:hover { background: var(--accent-dark); }
 
-    .result {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 12px;
-      background: #f9fafb;
-      border: 1px dashed #d1d5db;
-      min-height: 58px;
+    .line {
+      border-top: 1px dashed #e2e5e7;
+      margin: 10px 0;
+    }
+
+    .cat-row {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 4px 0;
+    }
+
+    .cat-name {
+      color: #98a6b8;
+      font-size: 15px;
+      font-weight: 800;
+      padding-top: 6px;
+    }
+
+    .chips {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
     }
 
-    .result strong {
-      color: var(--accent-dark);
+    .chip {
+      min-width: 64px;
+      border: 0;
+      border-radius: 12px;
+      padding: 6px 9px 5px;
+      background: var(--neutral);
+      cursor: pointer;
+      text-align: center;
+      color: var(--pill-text);
+      line-height: 1.1;
+    }
+
+    .chip.safe { background: var(--safe); color: #fff; }
+    .chip.allergy { background: var(--allergy); color: #fff; }
+    .chip-name { display: block; font-size: 13px; font-weight: 800; }
+    .chip-state { display: block; font-size: 10px; margin-top: 2px; color: #ff9c41; font-weight: 700; }
+    .chip.safe .chip-state, .chip.allergy .chip-state { color: #f2f3f3; }
+
+    .chip.plus {
+      border: 1px dashed #ced5dc;
+      background: transparent;
+      width: 34px;
+      min-width: 34px;
+      padding: 4px 0;
+      color: #a5afbb;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .inline-right { text-align: right; }
+
+    .weekly-grid {
+      background: var(--panel-2);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .planner-top {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .field-title {
+      color: #99a7b9;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      border: 1px solid #e2e5e7;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      font: inherit;
+      color: #596473;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .recommend {
+      background: #eee7d2;
+      border: 1px solid #edcc84;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .recommend-title {
+      color: #ef921f;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .rec-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .rec-item {
+      background: #f4f2ea;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #5c6168;
+      line-height: 1.4;
+    }
+
+    .rec-item b { color: #ef831f; display: block; }
+
+    .pickers {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 42px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .mini-btn {
+      border: 0;
+      border-radius: 10px;
+      background: #9aa8b8;
+      color: #fff;
       font-size: 20px;
-      margin-left: 6px;
+      font-weight: 700;
+      height: 40px;
+      cursor: pointer;
     }
 
-    @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 1fr;
-        justify-items: center;
-      }
-      .controls { width: min(520px, 100%); }
-      #wheel { width: 320px; height: 320px; }
+    .pending {
+      background: #f4f4f4;
+      border-radius: 14px;
+      padding: 10px;
+      margin-top: 10px;
     }
-  </style>
+
+    .pending-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .pending h3 { margin: 0; font-size: 18px; }
+
+    .small-ghost {
+      border: 1px solid #b4c0cf;
+      border-radius: 999px;
+      background: transparent;
+      color: #a2b0c2;
+      font-size: 13px;
+      padding: 4px 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tag-line {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed #e2e5e7;
+    }
+
+    .tag-line:last-child { border-bottom: 0; }
+    .label { color: #98a6b8; font-size: 13px; font-weight: 700; }
+
+    .board-head {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin: 10px 0 8px;
+    }
+
+    .board {
+      background: #f4f4f4;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .calendar {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 8px 6px;
+    }
+
+    .calendar th {
+      text-align: left;
+      color: #98a6b8;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .calendar th small { display: block; font-size: 11px; }
+
+    .row-title {
+      color: #2f3439;
+      font-size: 13px;
+      font-weight: 800;
+      width: 50px;
+    }
+
+    .cell {
+      background: #eceeef;
+      border-radius: 10px;
+      min-height: 78px;
+      padding: 6px;
+      font-size: 12px;
+      color: #566170;
+      cursor: pointer;
+      vertical-align: top;
+      border: 1px solid transparent;
+    }
+
+    .review-list .item {
+      display: grid;
+      grid-template-columns: 84px 1fr 160px;
+      gap: 8px;
+      align-items: center;
+      background: #f4f4f4;
+      border-radius: 10px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .food-name { font-size: 14px; font-weight: 800; }
+
+    .action-btns { display: flex; gap: 6px; justify-content: flex-end; }
+
+    .state-btn {
+      border: 0;
+      border-radius: 8px;
+      font-size: 12px;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .state-btn.safe { background: var(--safe); }
+    .state-btn.allergy { background: var(--allergy); }
+    .state-btn.reset { background: #c2c7cc; }
+
+    .archive-title { color: #98a6b8; font-size: 14px; font-weight: 700; margin: 12px 0 8px; }
+
+    .archive-item {
+      display: grid;
+      grid-template-columns: 82px 72px 52px 1fr 52px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f4f4f4;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .muted { color: #98a6b8; }
+
+    .status {
+      border-radius: 8px;
+      text-align: center;
+      font-size: 11px;
+      padding: 3px 4px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .status.safe { background: var(--safe); }
+    .status.allergy { background: var(--allergy); }
+    .status.reset { background: #bbc1c6; }
+
+    .archive-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .icon-btn {
+      border: 0;
+      background: transparent;
+      color: #95a4b6;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1200px) {
+      .topbar { flex-direction: column; gap: 10px; }
+      .planner-top { grid-template-columns: 1fr; }
+      .pickers { grid-template-columns: 1fr 1fr; }
+      .tag-line { grid-template-columns: 1fr; }
+      .review-list .item { grid-template-columns: 1fr; }
+      .archive-item { grid-template-columns: 1fr; }
+      .calendar { display: block; overflow-x: auto; }
+    }
+</style>
 </head>
 <body>
-  <main class="app">
-    <section class="wheel-wrap">
-      <div class="pointer" aria-hidden="true"></div>
-      <canvas id="wheel" width="720" height="720" aria-label="菜品转盘"></canvas>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Baby Food <span>Tracker</span></h1>
+        <p>辅食排敏小工具</p>
+      </div>
+      <div class="top-actions">
+        <button class="ghost-btn" id="uploadBtn">☁ 上传云端</button>
+        <button class="ghost-btn" id="downloadBtn">🗂️ 下载同步</button>
+      </div>
+      <input id="importInput" type="file" accept="application/json" hidden />
+    </header>
+
+    <section class="section" id="databaseSection">
+      <h2>Food Database</h2>
+      <div class="subtitle">点击食物方块标记状态：未排敏(灰) -> 安全食物(绿) -> 过敏食物(红)</div>
+      <div class="inline-right"><button class="small-ghost" id="addCategoryBtn">+ 新增食物分类</button></div>
+      <div id="databaseWrap"></div>
     </section>
 
-    <section class="controls">
-      <h1>今天吃什么？</h1>
-      <p>每行输入一个菜品，点击“更新转盘”，再点击“开始转动”。</p>
-      <textarea id="foodsInput">宫保鸡丁
-麻婆豆腐
-番茄牛腩
-寿司
-黄焖鸡
-兰州拉面
-水煮鱼
-沙拉</textarea>
-      <div class="btns">
-        <button id="renderBtn">更新转盘</button>
-        <button id="spinBtn">开始转动</button>
+    <section class="section" id="plannerSection">
+      <h2>Weekly Planner</h2>
+      <div class="subtitle">定制本周的排敏计划</div>
+
+      <div class="weekly-grid">
+        <div class="planner-top">
+          <div>
+            <div class="field-title">宝宝月龄</div>
+            <select id="ageSelect">
+              <option value="7">7月龄 (1-2次/天)</option>
+              <option value="8">8月龄 (2次/天)</option>
+              <option value="9">9月龄 (2次/天)</option>
+              <option value="10">10-12月龄 (2-3次/天)</option>
+            </select>
+          </div>
+          <div class="recommend">
+            <div class="recommend-title" id="recommendTitle">💡 建议：泥糊状，1~2次</div>
+            <div class="rec-list" id="recommendList"></div>
+          </div>
+        </div>
+
+        <div class="pickers">
+          <div>
+            <div class="field-title">本周测试 (新食物)</div>
+            <input id="testInput" type="text" placeholder="点击选择或搜索..." list="allFoods" />
+          </div>
+          <div>
+            <div class="field-title">本周搭配 (安全食物)</div>
+            <input id="safeInput" type="text" placeholder="点击选择或搜索..." list="safeFoods" />
+          </div>
+          <div>
+            <div class="field-title">自定义添加</div>
+            <input id="customInput" type="text" placeholder="如：益生菌" />
+          </div>
+          <button class="mini-btn" id="addPendingBtn">+</button>
+        </div>
       </div>
-      <div class="result" id="result">结果：<strong>等待抽取...</strong></div>
+
+      <div class="pending">
+        <div class="pending-head">
+          <h3>待选食材</h3>
+          <div>
+            <span class="muted" style="margin-right:10px;">选择食材卡片填入网格表</span>
+            <button class="small-ghost" id="clearPendingBtn">🗑 清空待选</button>
+          </div>
+        </div>
+        <div class="tag-line">
+          <div class="label">本周测试 (新食物)</div>
+          <div class="chips" id="pendingTest"></div>
+        </div>
+        <div class="tag-line">
+          <div class="label">本周搭配 (安全食物)</div>
+          <div class="chips" id="pendingSafe"></div>
+        </div>
+        <div class="tag-line">
+          <div class="label">自定义添加</div>
+          <div class="chips" id="pendingCustom"></div>
+        </div>
+      </div>
+
+      <div class="board-head">
+        <button class="small-ghost" id="mealManageBtn">⚙ 管理餐次</button>
+        <button class="small-ghost" id="resetPlanBtn">🔄 重置规划</button>
+        <button class="small-ghost" id="exportWeekBtn">🖨 导出本周</button>
+      </div>
+
+      <div class="board">
+        <table class="calendar" id="calendar"></table>
+      </div>
     </section>
-  </main>
+
+    <section class="section" id="reviewSection">
+      <h2>Review</h2>
+      <div class="subtitle">复盘上周排敏结果，自动同步至第一模块</div>
+      <div class="review-list" id="reviewList"></div>
+      <div class="line"></div>
+      <div class="archive-title">存档</div>
+      <div id="archiveList"></div>
+    </section>
+  </div>
+
+  <datalist id="allFoods"></datalist>
+  <datalist id="safeFoods"></datalist>
 
   <script>
-    const canvas = document.getElementById('wheel');
-    const ctx = canvas.getContext('2d');
-    const foodsInput = document.getElementById('foodsInput');
-    const renderBtn = document.getElementById('renderBtn');
-    const spinBtn = document.getElementById('spinBtn');
-    const resultBox = document.getElementById('result');
+    const KEY = 'baby-food-tracker-v2';
+    const DAYS = [
+      { key: 'Mon', cn: '周一' }, { key: 'Tue', cn: '周二' }, { key: 'Wed', cn: '周三' },
+      { key: 'Thu', cn: '周四' }, { key: 'Fri', cn: '周五' }, { key: 'Sat', cn: '周六' }, { key: 'Sun', cn: '周日' }
+    ];
 
-    const palette = ['#FECACA', '#FDE68A', '#BFDBFE', '#C7D2FE', '#A7F3D0', '#FBCFE8', '#FED7AA', '#DDD6FE'];
-    let foods = [];
-    let spinning = false;
-    let currentRotation = 0;
+    const AGE_GUIDE = {
+      '7': {
+        title: '💡 建议：泥糊状，1~2次',
+        items: [
+          ['谷物', '米粉20g/天；尝试粥10g米+100ml水 (10倍粥1:10)'],
+          ['蔬菜', '菜末25-50g/天，可考虑：丝瓜、冬瓜、番茄、娃娃菜、玉米等'],
+          ['肉类', '肉末、鱼末、肝末25g/天，逐渐增加，可考虑：猪肝、鸡肉'],
+          ['蛋类', '先不尝试'],
+          ['水果', '每天大约10-15g，可考虑：苹果、香蕉、梨、猕猴桃、火龙果']
+        ]
+      },
+      '8': {
+        title: '💡 建议：泥末状，2次',
+        items: [
+          ['谷物', '软烂米饭、面条，逐步增加颗粒感'],
+          ['蔬菜', '每日50g左右，尝试颜色不同蔬菜'],
+          ['肉类', '肉泥逐渐增加到30g，尝试鱼虾'],
+          ['蛋类', '可尝试蛋黄，观察3天'],
+          ['水果', '每日15-20g，尽量原味不加糖']
+        ]
+      },
+      '9': {
+        title: '💡 建议：碎末状，2次',
+        items: [
+          ['谷物', '粥饭交替，面食可切碎'],
+          ['蔬菜', '每日50-80g，增加叶菜比例'],
+          ['肉类', '每日30g+，可混合搭配'],
+          ['蛋类', '可尝试全蛋，留意过敏反应'],
+          ['水果', '每日20g，搭配安全食物']
+        ]
+      },
+      '10': {
+        title: '💡 建议：软固体，2~3次',
+        items: [
+          ['谷物', '接近家庭饮食，注意软烂'],
+          ['蔬菜', '每日80g以上，均衡搭配'],
+          ['肉类', '每日40g左右，鱼禽畜轮换'],
+          ['蛋类', '蛋类可常规食用，注意观察'],
+          ['水果', '每日20-30g，避免果汁替代']
+        ]
+      }
+    };
 
-    function parseFoods() {
-      const list = foodsInput.value
-        .split('\n')
-        .map(item => item.trim())
-        .filter(Boolean);
-      const unique = [...new Set(list)];
-      return unique.slice(0, 24);
+    const DEFAULT_DB = {
+      '蔬菜类': ['菠菜', '生菜', '芹菜', '南瓜', '山药', '油菜', '油麦菜', '苋菜', '红薯', '茄子', '小白菜', '包菜', '土豆', '紫薯', '丝瓜', '大白菜', '紫甘蓝', '胡萝卜', '芋头', '黄瓜', '卷心菜', '西兰花', '白萝卜', '西红柿', '冬瓜', '娃娃菜', '花菜', '玉米', '西葫芦', '莲藕', '莴笋', '荷兰豆', '芦笋', '蚕豆', '秋葵', '豆腐', '四季豆', '甜椒', '豌豆', '紫菜', '毛豆', '洋葱', '青菜'],
+      '水果类': ['苹果', '香蕉', '梨', '牛油果', '蓝莓', '木瓜', '橙子', '西梅', '车厘子', '椰子', '葡萄', '桃子', '哈密瓜', '草莓', '奇异果', '柑橘', '柚子', '火龙果'],
+      '谷物杂粮': ['大米', '小米', '紫米', '黑米', '薏米', '小麦', '燕麦', '藜麦', '芝麻', '红豆', '绿豆'],
+      '肉蛋鱼': ['鸡蛋', '猪肉', '牛肉', '鸡肉', '羊肉', '鸭肉', '猪肝', '鹅肝'],
+      '鱼虾类': ['鳕鱼', '三文鱼', '龙利鱼', '鲈鱼', '黄花鱼', '鲳鱼', '武昌鱼', '罗非鱼', '虾'],
+      '菌菇类': ['香菇', '平菇', '杏鲍菇', '口蘑'],
+      '坚果类': ['红枣', '核桃', '花生', '杏仁', '腰果', '亚麻籽'],
+      '乳品类': ['牛奶', '乳酪']
+    };
+
+    let state = {
+      db: {},
+      pending: { test: [], safe: [], custom: [] },
+      meals: ['午餐', '午点心'],
+      calendar: {},
+      reviewDrafts: {},
+      archive: []
+    };
+
+    const dbWrap = document.getElementById('databaseWrap');
+    const ageSelect = document.getElementById('ageSelect');
+    const recommendTitle = document.getElementById('recommendTitle');
+    const recommendList = document.getElementById('recommendList');
+    const testInput = document.getElementById('testInput');
+    const safeInput = document.getElementById('safeInput');
+    const customInput = document.getElementById('customInput');
+    const pendingTest = document.getElementById('pendingTest');
+    const pendingSafe = document.getElementById('pendingSafe');
+    const pendingCustom = document.getElementById('pendingCustom');
+    const allFoods = document.getElementById('allFoods');
+    const safeFoods = document.getElementById('safeFoods');
+    const calendar = document.getElementById('calendar');
+    const reviewList = document.getElementById('reviewList');
+    const archiveList = document.getElementById('archiveList');
+
+    let selectedPendingFood = null;
+
+    function todayString() {
+      const d = new Date();
+      return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
     }
 
-    function drawWheel() {
-      foods = parseFoods();
-      if (foods.length < 2) {
-        resultBox.innerHTML = '结果：<strong>请至少输入 2 个菜品</strong>';
+    function load() {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        state = { ...state, ...JSON.parse(raw) };
+      } else {
+        Object.keys(DEFAULT_DB).forEach(cat => {
+          state.db[cat] = DEFAULT_DB[cat].map(name => ({ name, status: 'neutral' }));
+        });
+      }
+      if (!Object.keys(state.db).length) {
+        Object.keys(DEFAULT_DB).forEach(cat => {
+          state.db[cat] = DEFAULT_DB[cat].map(name => ({ name, status: 'neutral' }));
+        });
+      }
+    }
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      buildDatalists();
+    }
+
+    function statusLabel(status) {
+      if (status === 'safe') return '低敏';
+      if (status === 'allergy') return '高敏';
+      return '低敏';
+    }
+
+    function cycleStatus(foodObj) {
+      foodObj.status = foodObj.status === 'neutral' ? 'safe' : foodObj.status === 'safe' ? 'allergy' : 'neutral';
+      save();
+      renderAll();
+    }
+
+    function renderDatabase() {
+      dbWrap.innerHTML = '';
+      Object.entries(state.db).forEach(([category, foods]) => {
+        const row = document.createElement('div');
+        row.innerHTML = `
+          <div class="line"></div>
+          <div class="cat-row">
+            <div class="cat-name">${category}</div>
+            <div class="chips"></div>
+          </div>`;
+        const chips = row.querySelector('.chips');
+
+        foods.forEach(food => {
+          const btn = document.createElement('button');
+          btn.className = `chip ${food.status === 'neutral' ? '' : food.status}`;
+          btn.innerHTML = `<span class="chip-name">${food.name}</span><span class="chip-state">${statusLabel(food.status)}</span>`;
+          btn.onclick = () => cycleStatus(food);
+          chips.appendChild(btn);
+        });
+
+        const plus = document.createElement('button');
+        plus.className = 'chip plus';
+        plus.textContent = '+';
+        plus.onclick = () => {
+          const name = prompt(`新增 ${category} 食物名称`);
+          if (!name) return;
+          state.db[category].push({ name: name.trim(), status: 'neutral' });
+          save();
+          renderAll();
+        };
+        chips.appendChild(plus);
+        dbWrap.appendChild(row);
+      });
+    }
+
+    function buildDatalists() {
+      const foodNames = [];
+      const safeNames = [];
+      Object.values(state.db).forEach(foods => {
+        foods.forEach(food => {
+          foodNames.push(food.name);
+          if (food.status === 'safe') safeNames.push(food.name);
+        });
+      });
+      allFoods.innerHTML = foodNames.map(n => `<option value="${n}"></option>`).join('');
+      safeFoods.innerHTML = safeNames.map(n => `<option value="${n}"></option>`).join('');
+    }
+
+    function renderGuide() {
+      const guide = AGE_GUIDE[ageSelect.value];
+      recommendTitle.textContent = guide.title;
+      recommendList.innerHTML = guide.items.map(([k, v]) => `<div class="rec-item"><b>${k}</b>${v}</div>`).join('');
+    }
+
+    function addPending(group, value) {
+      const text = value.trim();
+      if (!text) return;
+      if (!state.pending[group].includes(text)) state.pending[group].push(text);
+      save();
+      renderPending();
+    }
+
+    function renderPendingGroup(el, group) {
+      el.innerHTML = '';
+      state.pending[group].forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = `chip ${selectedPendingFood === name ? 'safe' : ''}`;
+        btn.innerHTML = `<span class="chip-name">${name}</span><span class="chip-state">点击填入</span>`;
+        btn.onclick = () => {
+          selectedPendingFood = selectedPendingFood === name ? null : name;
+          renderPending();
+        };
+        el.appendChild(btn);
+      });
+    }
+
+    function renderPending() {
+      renderPendingGroup(pendingTest, 'test');
+      renderPendingGroup(pendingSafe, 'safe');
+      renderPendingGroup(pendingCustom, 'custom');
+      renderReview();
+    }
+
+    function initCalendarIfNeed() {
+      state.meals.forEach(meal => {
+        if (!state.calendar[meal]) state.calendar[meal] = {};
+        DAYS.forEach(day => {
+          if (!Array.isArray(state.calendar[meal][day.key])) state.calendar[meal][day.key] = [];
+        });
+      });
+    }
+
+    function renderCalendar() {
+      initCalendarIfNeed();
+      const header = `<tr><th>Time</th>${DAYS.map(d => `<th>${d.key}<small>${d.cn}</small></th>`).join('')}</tr>`;
+      const rows = state.meals.map(meal => {
+        const tds = DAYS.map(d => {
+          const items = state.calendar[meal][d.key];
+          return `<td class="cell" data-meal="${meal}" data-day="${d.key}">${items.join('<br>')}</td>`;
+        }).join('');
+        return `<tr><td class="row-title">${meal}</td>${tds}</tr>`;
+      }).join('');
+      calendar.innerHTML = header + rows;
+
+      calendar.querySelectorAll('.cell').forEach(cell => {
+        cell.onclick = () => {
+          if (!selectedPendingFood) {
+            alert('请先在“待选食材”中点击一个食材');
+            return;
+          }
+          const meal = cell.dataset.meal;
+          const day = cell.dataset.day;
+          const arr = state.calendar[meal][day];
+          if (!arr.includes(selectedPendingFood)) arr.push(selectedPendingFood);
+          save();
+          renderCalendar();
+        };
+      });
+    }
+
+    function setDbStatus(foodName, status) {
+      Object.values(state.db).forEach(foods => {
+        foods.forEach(food => {
+          if (food.name === foodName) food.status = status;
+        });
+      });
+    }
+
+    function renderReview() {
+      const merged = [...state.pending.test, ...state.pending.safe, ...state.pending.custom];
+      const uniq = [...new Set(merged)];
+      reviewList.innerHTML = uniq.map(food => `
+        <div class="item">
+          <div class="food-name">${food}</div>
+          <input type="text" data-note-food="${food}" placeholder="排敏记录 (如：无异常、起疹子...)" value="${state.reviewDrafts[food] || ''}" />
+          <div class="action-btns">
+            <button class="state-btn safe" data-act="safe" data-food="${food}">安全</button>
+            <button class="state-btn allergy" data-act="allergy" data-food="${food}">过敏</button>
+            <button class="state-btn reset" data-act="reset" data-food="${food}">重置</button>
+          </div>
+        </div>
+      `).join('');
+
+      reviewList.querySelectorAll('input[data-note-food]').forEach(input => {
+        input.oninput = () => {
+          state.reviewDrafts[input.dataset.noteFood] = input.value;
+          save();
+        };
+      });
+
+      reviewList.querySelectorAll('button[data-act]').forEach(btn => {
+        btn.onclick = () => applyReview(btn.dataset.food, btn.dataset.act);
+      });
+    }
+
+    function applyReview(food, act) {
+      const status = act === 'safe' ? 'safe' : act === 'allergy' ? 'allergy' : 'neutral';
+      setDbStatus(food, status);
+      state.archive.unshift({
+        date: todayString(),
+        food,
+        status: act,
+        note: state.reviewDrafts[food] || '(无记录)'
+      });
+      state.archive = state.archive.slice(0, 60);
+      save();
+      renderAll();
+    }
+
+    function renderArchive() {
+      archiveList.innerHTML = state.archive.map((item, idx) => `
+        <div class="archive-item">
+          <div class="muted">${item.date}</div>
+          <div><b>${item.food}</b></div>
+          <div class="status ${item.status}">${item.status === 'safe' ? '安全' : item.status === 'allergy' ? '过敏' : '重置'}</div>
+          <div>${item.note}</div>
+          <div class="archive-actions">
+            <button class="icon-btn" data-edit="${idx}">✎</button>
+            <button class="icon-btn" data-del="${idx}">×</button>
+          </div>
+        </div>
+      `).join('');
+
+      archiveList.querySelectorAll('button[data-del]').forEach(btn => {
+        btn.onclick = () => {
+          state.archive.splice(Number(btn.dataset.del), 1);
+          save();
+          renderArchive();
+        };
+      });
+
+      archiveList.querySelectorAll('button[data-edit]').forEach(btn => {
+        btn.onclick = () => {
+          const idx = Number(btn.dataset.edit);
+          const next = prompt('编辑记录备注', state.archive[idx].note);
+          if (next === null) return;
+          state.archive[idx].note = next;
+          save();
+          renderArchive();
+        };
+      });
+    }
+
+    function renderAll() {
+      buildDatalists();
+      renderDatabase();
+      renderGuide();
+      renderPending();
+      renderCalendar();
+      renderArchive();
+    }
+
+    document.getElementById('addCategoryBtn').onclick = () => {
+      const name = prompt('输入新分类名称');
+      if (!name) return;
+      if (state.db[name]) {
+        alert('该分类已存在');
         return;
       }
+      state.db[name] = [];
+      save();
+      renderDatabase();
+    };
 
-      const size = canvas.width;
-      const center = size / 2;
-      const radius = center - 12;
-      const angle = (Math.PI * 2) / foods.length;
+    document.getElementById('addPendingBtn').onclick = () => {
+      addPending('test', testInput.value);
+      addPending('safe', safeInput.value);
+      addPending('custom', customInput.value);
+      testInput.value = '';
+      safeInput.value = '';
+      customInput.value = '';
+    };
 
-      ctx.clearRect(0, 0, size, size);
+    document.getElementById('clearPendingBtn').onclick = () => {
+      state.pending = { test: [], safe: [], custom: [] };
+      selectedPendingFood = null;
+      save();
+      renderAll();
+    };
 
-      for (let i = 0; i < foods.length; i++) {
-        const start = i * angle - Math.PI / 2;
-        const end = start + angle;
+    document.getElementById('mealManageBtn').onclick = () => {
+      const input = prompt('请输入餐次，逗号分隔', state.meals.join(','));
+      if (!input) return;
+      state.meals = input.split(',').map(s => s.trim()).filter(Boolean).slice(0, 4);
+      save();
+      renderCalendar();
+    };
 
-        ctx.beginPath();
-        ctx.moveTo(center, center);
-        ctx.arc(center, center, radius, start, end);
-        ctx.closePath();
-        ctx.fillStyle = palette[i % palette.length];
-        ctx.fill();
+    document.getElementById('resetPlanBtn').onclick = () => {
+      if (!confirm('重置本周网格规划？')) return;
+      state.calendar = {};
+      initCalendarIfNeed();
+      save();
+      renderCalendar();
+    };
 
-        ctx.save();
-        ctx.translate(center, center);
-        ctx.rotate(start + angle / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#111827';
-        ctx.font = 'bold 32px "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.fillText(foods[i], radius - 24, 10);
-        ctx.restore();
-      }
+    document.getElementById('exportWeekBtn').onclick = () => {
+      const data = {
+        pending: state.pending,
+        meals: state.meals,
+        calendar: state.calendar,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'weekly-plan.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
 
-      ctx.beginPath();
-      ctx.arc(center, center, 22, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.strokeStyle = '#e5e7eb';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      resultBox.innerHTML = '结果：<strong>等待抽取...</strong>';
-    }
+    document.getElementById('uploadBtn').onclick = () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'baby-food-tracker-cloud-backup.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
 
-    function getResultByRotation(rotationDeg) {
-      const segment = 360 / foods.length;
-      const normalized = ((rotationDeg % 360) + 360) % 360;
-      const adjusted = (360 - normalized + 90) % 360;
-      const index = Math.floor(adjusted / segment) % foods.length;
-      return foods[index];
-    }
+    document.getElementById('downloadBtn').onclick = () => {
+      document.getElementById('importInput').click();
+    };
 
-    function spin() {
-      if (spinning) return;
-      if (foods.length < 2) {
-        drawWheel();
-        return;
-      }
+    document.getElementById('importInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          state = { ...state, ...data };
+          save();
+          renderAll();
+          alert('同步完成');
+        } catch {
+          alert('文件解析失败，请确认是 JSON 备份文件');
+        }
+      };
+      reader.readAsText(file);
+    });
 
-      spinning = true;
-      spinBtn.disabled = true;
+    ageSelect.addEventListener('change', renderGuide);
 
-      const fullTurns = Math.floor(Math.random() * 3) + 6;
-      const offset = Math.random() * 360;
-      const delta = fullTurns * 360 + offset;
-      currentRotation += delta;
-
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      setTimeout(() => {
-        const picked = getResultByRotation(currentRotation);
-        resultBox.innerHTML = `结果：<strong>${picked}</strong>`;
-        spinning = false;
-        spinBtn.disabled = false;
-      }, 4700);
-    }
-
-    renderBtn.addEventListener('click', drawWheel);
-    spinBtn.addEventListener('click', spin);
-
-    drawWheel();
+    load();
+    renderAll();
   </script>
 </body>
 </html>
