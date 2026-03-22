@@ -105,7 +105,12 @@ const APP_TEMPLATE = `
 `;
 
 if (!document.getElementById('databaseWrap')) {
-  document.body.innerHTML = APP_TEMPLATE;
+  const root = document.getElementById('app-root');
+  if (root) {
+    root.outerHTML = APP_TEMPLATE;
+  } else {
+    document.body.innerHTML = APP_TEMPLATE;
+  }
 }
 
 const KEY = 'baby-food-tracker-v2';
