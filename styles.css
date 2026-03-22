@@ -1,3 +1,4 @@
+/* Merge-resolved final theme tokens (single source of truth). */
 :root {
       --bg: #fdf6f0;
       --panel: #ffffff;
@@ -10,7 +11,7 @@
       --neutral: #f0f3f6;
       --pill-text: #4f5b67;
       --accent: #ff7675;
-      --btn-line: #a9b7c8;
+      --btn-line: #c8d3df;
     }
 
     * { box-sizing: border-box; }
